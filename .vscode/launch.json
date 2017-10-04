@@ -1,0 +1,51 @@
+{
+        "version": "0.2.0",
+        "configurations": [
+            { 
+                "name": "(gdb) Attach",
+                "type": "cppdbg",
+                "request": "attach",
+                "program": "/localdisk/car/Self-Driving-Car-Term2/CarND-Extended-Kalman-Filter-Project/build3/ExtendedKF",
+                "processId": "${command:pickProcess}",
+                "MIMode": "gdb"
+            },
+            {
+                "name": "Run Extended KF",
+                "type": "cppdbg",
+                "request": "launch",
+                "program": "/localdisk/car/Self-Driving-Car-Term2/CarND-Extended-Kalman-Filter-Project/build3/ExtendedKF",
+                "args": [],
+                "stopAtEntry": false,
+                "cwd": "${workspaceRoot}",
+                "environment": [],
+                "externalConsole": true,
+                "MIMode": "gdb",
+                "setupCommands": [
+                    {
+                        "description": "Enable pretty-printing for gdb",
+                        "text": "-enable-pretty-printing",
+                        "ignoreFailures": true
+                    }
+                ]
+            },
+            {
+                "name": "Run Sim",
+                "type": "cppdbg",
+                "request": "launch",
+                "program": "/localdisk/car/term2_sim_linux/term2_sim.x86_64",
+                "args": [],
+                "stopAtEntry": false,
+                "cwd": "${workspaceRoot}",
+                "environment": [],
+                "externalConsole": true,
+                "MIMode": "gdb",
+                "setupCommands": [
+                    {
+                        "description": "Enable pretty-printing for gdb",
+                        "text": "-enable-pretty-printing",
+                        "ignoreFailures": true
+                    }
+                ]
+            }
+        ]
+    }
