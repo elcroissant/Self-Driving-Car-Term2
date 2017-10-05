@@ -34,8 +34,43 @@ void KalmanFilter::Update(const VectorXd &z) {
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
-  /**
-  TODO:
-    * update the state by using Extended Kalman Filter equations
-  */
+  // The predicted measurement vector x' is a vector containing values 
+  // in the form [px,py,vx,vy]. The radar sensor will output values in polar coordinates.
+  // In order to calculate y for the radar sensor, we need to convert x' to polar coordinates. 
+  // In other words, the function h(x) maps values from Cartesian coordinates to polar coordinates. 
+  // So the equation for radar becomes y=z_radar-h(x').
+  VectorXd z_pred(3);
+  
+  // Unpack the state vector
+  double px = x_(0);
+  double py = x_(1);
+  double vx = x_(2);
+  double vy = x_(3);
+  
+
+  z_pred[0] = sqrt(px*px + py*py);
+  
+  // px correction if necessary
+  if(fabs(px) < 0.0001){
+    px = 0.0001;
+  }
+  
+  z_pred[1] = atan(py/px);
+  
+  if (fabs(z_pred[0]) < 0.0001) {
+    z_pred[0] = 0.0001;
+  }
+
+  z_pred[2] = (px*vx + py*vy) / z_pred[0];
+  
+  VectorXd y = z - z_pred;
+//////
+  MatrixXd S = H_ * P_ * H_.transpose() + R_;
+  MatrixXd K = P_ * H_.transpose() * S.inverse();
+
+  x_ = x_ + K * y;
+  long x_size = x_.size();
+  MatrixXd I = MatrixXd::Identity(x_size, x_size);
+  P_ = (I - K * H_) * P_;
+
 }
