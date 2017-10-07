@@ -1,4 +1,7 @@
 #include "kalman_filter.h"
+#include <iostream>
+
+using namespace std;
 
 using Eigen::MatrixXd;
 using Eigen::VectorXd;
@@ -24,13 +27,7 @@ void KalmanFilter::Predict() {
 
 void KalmanFilter::Update(const VectorXd &z) {
   VectorXd y = z - H_ * x_;
-  MatrixXd S = H_ * P_ * H_.transpose() + R_;
-  MatrixXd K = P_ * H_.transpose() * S.inverse();
-
-  x_ = x_ + K * y;
-  long x_size = x_.size();
-  MatrixXd I = MatrixXd::Identity(x_size, x_size);
-  P_ = (I - K * H_) * P_;
+  UpdateCommon(y);
 }
 
 void KalmanFilter::UpdateEKF(const VectorXd &z) {
@@ -51,20 +48,41 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   z_pred[0] = sqrt(px*px + py*py);
   
   // px correction if necessary
+  cout << "px: " << px << endl;
+  cout << "py: " << py << endl;
+  cout << "vx: " << vx << endl;
+  cout << "vy: " << vy << endl;
   if(fabs(px) < 0.0001){
+    exit(1);
     px = 0.0001;
   }
   
-  z_pred[1] = atan(py/px);
-  
+  z_pred[1] = atan2(py,px);
+
+  if (z_pred[1] < 0 && z[1] > 0)
+    z_pred[1] = abs(z_pred[1]);
+
+  cout << "z_pred[0]: " << z_pred[0] << endl;
+  cout << "z_pred[1]: " << z_pred[1] << endl;
   if (fabs(z_pred[0]) < 0.0001) {
+    exit(1);
     z_pred[0] = 0.0001;
   }
 
   z_pred[2] = (px*vx + py*vy) / z_pred[0];
   
+  cout << "z_pred[0]: "  << z_pred[2] <<endl;
+  cout << "z[0]: " << z[0] << endl;
+  cout << "z[1]: " << z[1] << endl;
+  cout << "z[2]: " << z[2] << endl;
   VectorXd y = z - z_pred;
-//////
+
+  UpdateCommon(y);
+
+}
+
+void KalmanFilter::UpdateCommon(const Eigen::VectorXd &y)
+{
   MatrixXd S = H_ * P_ * H_.transpose() + R_;
   MatrixXd K = P_ * H_.transpose() * S.inverse();
 
@@ -72,5 +90,4 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   long x_size = x_.size();
   MatrixXd I = MatrixXd::Identity(x_size, x_size);
   P_ = (I - K * H_) * P_;
-
 }
