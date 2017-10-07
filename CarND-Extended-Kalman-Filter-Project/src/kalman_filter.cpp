@@ -48,34 +48,33 @@ void KalmanFilter::UpdateEKF(const VectorXd &z) {
   z_pred[0] = sqrt(px*px + py*py);
   
   // px correction if necessary
-  cout << "px: " << px << endl;
-  cout << "py: " << py << endl;
-  cout << "vx: " << vx << endl;
-  cout << "vy: " << vy << endl;
   if(fabs(px) < 0.0001){
-    exit(1);
     px = 0.0001;
   }
   
   z_pred[1] = atan2(py,px);
 
-  if (z_pred[1] < 0 && z[1] > 0)
-    z_pred[1] = abs(z_pred[1]);
-
-  cout << "z_pred[0]: " << z_pred[0] << endl;
-  cout << "z_pred[1]: " << z_pred[1] << endl;
   if (fabs(z_pred[0]) < 0.0001) {
-    exit(1);
     z_pred[0] = 0.0001;
   }
 
   z_pred[2] = (px*vx + py*vy) / z_pred[0];
   
-  cout << "z_pred[0]: "  << z_pred[2] <<endl;
-  cout << "z[0]: " << z[0] << endl;
-  cout << "z[1]: " << z[1] << endl;
-  cout << "z[2]: " << z[2] << endl;
+  // Calculate error
   VectorXd y = z - z_pred;
+  
+  bool in_range = false;
+  while (in_range == false) {
+    if (y(1) > 3.14159) {
+      y(1) = y(1) - 6.2831;
+    }
+    else if (y(1) < -3.14159) {
+      y(1) = y(1) + 6.2831;
+    } 
+    else {
+      in_range = true;
+    }
+  }
 
   UpdateCommon(y);
 
