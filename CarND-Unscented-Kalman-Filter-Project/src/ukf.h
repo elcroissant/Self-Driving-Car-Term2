@@ -67,6 +67,11 @@ public:
   ///* Sigma point spreading parameter
   double lambda_;
 
+  MatrixXd R_radar_;
+  MatrixXd R_laser_;
+
+  double NIS_radar_;
+  double NIS_laser_;
 
   /**
    * Constructor
@@ -102,6 +107,8 @@ public:
    * @param meas_package The measurement at k+1
    */
   void UpdateRadar(MeasurementPackage meas_package);
+
+  void UpdateUKF(MeasurementPackage meas_package, MatrixXd Zsig, int n_z);
 };
 
 #endif /* UKF_H */
