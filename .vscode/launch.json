@@ -10,6 +10,25 @@
                 "MIMode": "gdb"
             },
             {
+                "name": "Particle filter",
+                "type": "cppdbg",
+                "request": "launch",
+                "program": "/localdisk/car/Self-Driving-Car-Term2/CarND-Kidnapped-Vehicle-Project/build/particle_filter",
+                "args": [],
+                "stopAtEntry": false,
+                "cwd": "/localdisk/car/Self-Driving-Car-Term2/CarND-Kidnapped-Vehicle-Project/build/",
+                "environment": [],
+                "externalConsole": true,
+                "MIMode": "gdb",
+                "setupCommands": [
+                    {
+                        "description": "Enable pretty-printing for gdb",
+                        "text": "-enable-pretty-printing",
+                        "ignoreFailures": true
+                    }
+                ]
+            },
+            {
                 "name": "Run Extended KF",
                 "type": "cppdbg",
                 "request": "launch",
