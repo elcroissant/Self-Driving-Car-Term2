@@ -164,8 +164,15 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     const double denom_x = 2 * pow(std_landmark[0],2);
     const double denom_y = 2 * pow(std_landmark[1],2);
     // calculate normalization term
-    const double gauss_norm = 1 / (2 * M_PI * std_landmark[0] * std_landmark[1]);
+    
 
+    if(std_landmark[0] == 0 || std_landmark[1] == 0)
+    {
+      return;
+    }
+
+    const double gauss_norm = 1 / (2 * M_PI * std_landmark[0] * std_landmark[1]);
+    
     for (auto map_obs: map_observations)
     {
       if (map_obs.id == 0)
@@ -192,8 +199,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       // calulate exponent
       double exponent= pow(x_obs - mu_x,2)/denom_x + pow(y_obs - mu_y,2)/denom_y;
       // calculate weight using normalization terms and exponent
-      particles[i].weight = gauss_norm * exp(-exponent);
-      weights[i] = particles[i].weight;
+      weights[i] = particles[i].weight * gauss_norm * exp(-exponent);
+      //weights[i] = particles[i].weight;
     }
   }
 }
