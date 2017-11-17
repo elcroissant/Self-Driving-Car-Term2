@@ -132,6 +132,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     map_observations.clear();
     landmarks_in_range.clear();
 
+    // Step1: transform observation into map's coordination
     for (auto obs: observations)
     {
       double x_obs = obs.x;
@@ -145,6 +146,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       map_observations.push_back(LandmarkObs { 0 /*init index = 0*/, x_map, y_map });
     }
 
+    // Step2: find landmarks within the range
     for(auto landmark: map_landmarks.landmark_list)
     {
       float x_land = landmark.x_f;
@@ -159,6 +161,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       }
     }
 
+    // Step3: find nearest neighbour 
     dataAssociation(landmarks_in_range, map_observations);
 
     const double denom_x = 2 * pow(std_landmark[0],2);
@@ -172,6 +175,14 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     }
 
     const double gauss_norm = 1 / (2 * M_PI * std_landmark[0] * std_landmark[1]);
+    
+    
+    
+    //reset weights before next 
+    particles[i].weight = 1.0;
+ 
+    
+    // Step4: update particles weights
     
     for (auto map_obs: map_observations)
     {
@@ -199,8 +210,8 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
       // calulate exponent
       double exponent= pow(x_obs - mu_x,2)/denom_x + pow(y_obs - mu_y,2)/denom_y;
       // calculate weight using normalization terms and exponent
-      weights[i] = particles[i].weight * gauss_norm * exp(-exponent);
-      //weights[i] = particles[i].weight;
+      particles[i].weight*= gauss_norm * exp(-exponent);
+      weights[i] = particles[i].weight;
     }
   }
 }
