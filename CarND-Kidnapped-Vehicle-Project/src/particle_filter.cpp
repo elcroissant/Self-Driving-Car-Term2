@@ -178,7 +178,7 @@ void ParticleFilter::updateWeights(double sensor_range, double std_landmark[],
     
     
     
-    //reset weights before next 
+    //reset weight for each particle before update
     particles[i].weight = 1.0;
  
     
