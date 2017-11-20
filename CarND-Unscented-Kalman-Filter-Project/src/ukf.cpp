@@ -88,11 +88,7 @@ void UKF::ProcessMeasurement(MeasurementPackage meas_package) {
   
   if (!is_initialized_) 
   {
-     P_ << 1, 0, 0, 0, 0,
-          0, 1, 0, 0, 0,
-          0, 0, 1, 0, 0,
-          0, 0, 0, 1, 0,
-          0, 0, 0, 0, 1;
+     P_ = MatrixXd::Identity(5,5);
 
     if (meas_package.sensor_type_ == MeasurementPackage::RADAR) 
     { 
