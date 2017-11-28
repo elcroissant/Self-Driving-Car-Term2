@@ -2,21 +2,36 @@
 #define PID_H
 
 class PID {
-public:
+private:
   /*
-  * Errors
+  * Errors for steering
   */
-  double p_error;
-  double i_error;
-  double d_error;
+  double steer_p_error_;
+  double steer_i_error_;
+  double steer_d_error_;
 
   /*
-  * Coefficients
+  * Coefficients for steering
   */ 
-  double Kp;
-  double Ki;
-  double Kd;
+  double steer_Kp_;
+  double steer_Ki_;
+  double steer_Kd_;
 
+ /*
+  * Errors for speed
+  */
+  double speed_p_error_;
+  double speed_i_error_;
+  double speed_d_error_;
+
+  /*
+  * Coefficients for speed
+  */ 
+  double speed_Kp_;
+  double speed_Ki_;
+  double speed_Kd_;
+
+public:
   /*
   * Constructor
   */
@@ -30,17 +45,22 @@ public:
   /*
   * Initialize PID.
   */
-  void Init(double Kp, double Ki, double Kd);
+  void Init(double steer_Kp, double steer_Ki, double steer_Kd, double speed_Kp, double speed_Ki, double speed_Kd);
 
   /*
   * Update the PID error variables given cross track error.
   */
-  void UpdateError(double cte);
+  void UpdateError(double steer_cte, double speed_cte);
 
   /*
-  * Calculate the total PID error.
+  * Calculate the total steering PID error.
   */
-  double TotalError();
+  double TotalSteerError();
+  
+  /*
+  * Calculate the total speed PID error.
+  */
+  double TotalSpeedError();
 };
 
 #endif /* PID_H */
