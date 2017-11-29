@@ -4,6 +4,7 @@
 #include "PID.h"
 #include <math.h>
 
+
 // for convenience
 using json = nlohmann::json;
 
@@ -28,11 +29,28 @@ std::string hasData(std::string s) {
   return "";
 }
 
+double clamp(double value, double lower, double upper)
+{
+  return std::min(upper, std::max(value, lower));
+}
+
+
 int main()
 {
-  double steer_Kp = 0.1;
+  //drives but not very stable
+  //double steer_Kp = 0.1;
+  //double steer_Ki = 0.005;
+  //double steer_Kd = 3;
+
+  // removing integral part doesn't help a lot
+  //double steer_Kp = 0.1;
+  //double steer_Ki = 0.0;
+  //double steer_Kd = 3;
+
+  double steer_Kp = 0.07;
   double steer_Ki = 0.005;
-  double steer_Kd = 3;
+  double steer_Kd = 3.0;
+
   double speed_Kp = 0.0;
   double speed_Ki = 0.0;
   double speed_Kd = 0.0;
@@ -59,8 +77,24 @@ int main()
           double speed = std::stod(j[1]["speed"].get<std::string>());
           double angle = std::stod(j[1]["steering_angle"].get<std::string>());
          
+          std::cout << "SPEED: " << speed << " ANGLE: " << angle << std::endl;
+
           pid.UpdateError(cte,0.0);
           double steer_value = -1 * pid.TotalSteerError();
+          double clamped_steer_value = clamp(steer_value, -1, 1);
+          std::cout << "CLAMPED: " << clamped_steer_value << std::endl;
+          double throttle = 0.0;
+
+          double inverse_steer = (1.0-fabs(clamped_steer_value));
+          std::cout << "INVERSE: " << inverse_steer << std::endl;
+          if (inverse_steer > 0.9)
+            throttle = inverse_steer;
+          else if (inverse_steer > 0.1)
+            throttle = inverse_steer * 0.1;
+          else
+            throttle = inverse_steer * 0.05;
+
+          std::cout << "THROTTLE: " << throttle << std::endl;
           /*
           * TODO: Calcuate steering value here, remember the steering value is
           * [-1, 1].
@@ -72,8 +106,8 @@ int main()
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
 
           json msgJson;
-          msgJson["steering_angle"] = steer_value;
-          msgJson["throttle"] = 0.3;
+          msgJson["steering_angle"] = clamped_steer_value;
+          msgJson["throttle"] = throttle;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);

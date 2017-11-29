@@ -1,13 +1,16 @@
 #ifndef PID_H
 #define PID_H
 
+
+#include <vector>
+
 class PID {
 private:
   /*
   * Errors for steering
   */
   double steer_p_error_;
-  double steer_i_error_;
+  std::vector<double> steer_i_error_;
   double steer_d_error_;
 
   /*
@@ -21,7 +24,7 @@ private:
   * Errors for speed
   */
   double speed_p_error_;
-  double speed_i_error_;
+  std::vector<double> speed_i_error_;
   double speed_d_error_;
 
   /*
