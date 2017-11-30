@@ -47,18 +47,24 @@ int main()
   //double steer_Ki = 0.0;
   //double steer_Kd = 3;
 
+  // adding sum of 10 last element so integral enabled again, up to 20 km speed
+  //double steer_Kp = 0.07;
+  //double steer_Ki = 0.005;
+  //double steer_Kd = 3.0;
+
+
   double steer_Kp = 0.07;
   double steer_Ki = 0.005;
   double steer_Kd = 3.0;
 
-  double speed_Kp = 0.0;
-  double speed_Ki = 0.0;
-  double speed_Kd = 0.0;
+  double speed_Kp = 0.005;
+  double speed_Ki = 0.0005;
+  double speed_Kd = 0.05;
 
   uWS::Hub h;
 
   PID pid;
-  // TODO: Initialize the pid variable.
+
   pid.Init(steer_Kp, steer_Ki, steer_Kd, speed_Kp, speed_Ki, speed_Kd);
 
   h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
@@ -77,37 +83,38 @@ int main()
           double speed = std::stod(j[1]["speed"].get<std::string>());
           double angle = std::stod(j[1]["steering_angle"].get<std::string>());
          
+          const double desired_speed = 30.0;
+          
           std::cout << "SPEED: " << speed << " ANGLE: " << angle << std::endl;
 
-          pid.UpdateError(cte,0.0);
+          // Calculate steering value and clamp to [-1,1]
+          pid.UpdateError(cte, speed - desired_speed);
           double steer_value = -1 * pid.TotalSteerError();
           double clamped_steer_value = clamp(steer_value, -1, 1);
           std::cout << "CLAMPED: " << clamped_steer_value << std::endl;
-          double throttle = 0.0;
-
-          double inverse_steer = (1.0-fabs(clamped_steer_value));
-          std::cout << "INVERSE: " << inverse_steer << std::endl;
-          if (inverse_steer > 0.9)
-            throttle = inverse_steer;
-          else if (inverse_steer > 0.1)
-            throttle = inverse_steer * 0.1;
-          else
-            throttle = inverse_steer * 0.05;
-
-          std::cout << "THROTTLE: " << throttle << std::endl;
-          /*
-          * TODO: Calcuate steering value here, remember the steering value is
-          * [-1, 1].
-          * NOTE: Feel free to play around with the throttle and speed. Maybe use
-          * another PID controller to control the speed!
-          */
           
+          // PID controller for spped
+          double speed_value = -1 * pid.TotalSpeedError();     
+
+          // Throttle thresholds
+          //double throttle = 0.0;
+          //double inverse_steer = (1.0-fabs(clamped_steer_value));
+          //std::cout << "INVERSE: " << inverse_steer << std::endl;
+          //if (inverse_steer > 0.9)
+          //  throttle = inverse_steer;
+          //else if (inverse_steer > 0.1)
+          //  throttle = inverse_steer * 0.1;
+          //else
+          //  throttle = inverse_steer * 0.05;
+          //std::cout << "THROTTLE: " << throttle << std::endl;
+                    
           // DEBUG
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
+          std::cout << "Speed CTE: " << speed - desired_speed << " Speed Value " << speed_value << std::endl;
 
           json msgJson;
           msgJson["steering_angle"] = clamped_steer_value;
-          msgJson["throttle"] = throttle;
+          msgJson["throttle"] = speed_value; //throttle;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
