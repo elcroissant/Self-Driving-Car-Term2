@@ -9,30 +9,18 @@ private:
   /*
   * Errors for steering
   */
-  double steer_p_error_;
-  std::vector<double> steer_i_error_;
-  double steer_d_error_;
+  double p_error_;
+  std::vector<double> i_error_;
+  double d_error_;
 
   /*
   * Coefficients for steering
   */ 
-  double steer_Kp_;
-  double steer_Ki_;
-  double steer_Kd_;
+  double Kp_;
+  double Ki_;
+  double Kd_;
 
- /*
-  * Errors for speed
-  */
-  double speed_p_error_;
-  std::vector<double> speed_i_error_;
-  double speed_d_error_;
 
-  /*
-  * Coefficients for speed
-  */ 
-  double speed_Kp_;
-  double speed_Ki_;
-  double speed_Kd_;
 
 public:
   /*
@@ -48,22 +36,18 @@ public:
   /*
   * Initialize PID.
   */
-  void Init(double steer_Kp, double steer_Ki, double steer_Kd, double speed_Kp, double speed_Ki, double speed_Kd);
+  void Init(double Kp, double Ki, double Kd);
 
   /*
   * Update the PID error variables given cross track error.
   */
-  void UpdateError(double steer_cte, double speed_cte);
+  void UpdateError(double cte);
 
   /*
   * Calculate the total steering PID error.
   */
-  double TotalSteerError();
+  double TotalError();
   
-  /*
-  * Calculate the total speed PID error.
-  */
-  double TotalSpeedError();
-};
+  };
 
 #endif /* PID_H */

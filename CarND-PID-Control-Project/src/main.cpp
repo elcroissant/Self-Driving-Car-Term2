@@ -57,17 +57,18 @@ int main()
   double steer_Ki = 0.005;
   double steer_Kd = 3.0;
 
-  double speed_Kp = 0.005;
-  double speed_Ki = 0.0005;
-  double speed_Kd = 0.05;
+  double speed_Kp = 1.0;
+  double speed_Ki = 0.05;
+  double speed_Kd = 4.0;
 
   uWS::Hub h;
 
-  PID pid;
+  PID pid_for_steer, pid_for_speed;
 
-  pid.Init(steer_Kp, steer_Ki, steer_Kd, speed_Kp, speed_Ki, speed_Kd);
+  pid_for_steer.Init(steer_Kp, steer_Ki, steer_Kd);
+  pid_for_speed.Init(speed_Kp, speed_Ki, speed_Kd);
 
-  h.onMessage([&pid](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
+  h.onMessage([&pid_for_steer,&pid_for_speed](uWS::WebSocket<uWS::SERVER> ws, char *data, size_t length, uWS::OpCode opCode) {
     // "42" at the start of the message means there's a websocket message event.
     // The 4 signifies a websocket message
     // The 2 signifies a websocket event
@@ -83,20 +84,19 @@ int main()
           double speed = std::stod(j[1]["speed"].get<std::string>());
           double angle = std::stod(j[1]["steering_angle"].get<std::string>());
          
-          const double desired_speed = 30.0;
-          
           std::cout << "SPEED: " << speed << " ANGLE: " << angle << std::endl;
 
-          // Calculate steering value and clamp to [-1,1]
-          pid.UpdateError(cte, speed - desired_speed);
-          double steer_value = -1 * pid.TotalSteerError();
+          pid_for_steer.UpdateError(cte);
+          double steer_value =  pid_for_steer.TotalError();
           double clamped_steer_value = clamp(steer_value, -1, 1);
           std::cout << "CLAMPED: " << clamped_steer_value << std::endl;
-          
+         
+          pid_for_speed.UpdateError(clamped_steer_value);
           // PID controller for spped
-          double speed_value = -1 * pid.TotalSpeedError();     
+          double max_throttle = 0.5;
+          double speed_correction_value = max_throttle + pid_for_speed.TotalError();     
 
-          // Throttle thresholds
+       // //// Throttle thresholds
           //double throttle = 0.0;
           //double inverse_steer = (1.0-fabs(clamped_steer_value));
           //std::cout << "INVERSE: " << inverse_steer << std::endl;
@@ -107,14 +107,14 @@ int main()
           //else
           //  throttle = inverse_steer * 0.05;
           //std::cout << "THROTTLE: " << throttle << std::endl;
-                    
+          //          
           // DEBUG
           std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
-          std::cout << "Speed CTE: " << speed - desired_speed << " Speed Value " << speed_value << std::endl;
+          //std::cout << "Speed CTE: " << speed - desired_speed << " Speed Correction Value " << speed_correction_value << std::endl;
 
           json msgJson;
           msgJson["steering_angle"] = clamped_steer_value;
-          msgJson["throttle"] = speed_value; //throttle;
+          msgJson["throttle"] = speed_correction_value;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
