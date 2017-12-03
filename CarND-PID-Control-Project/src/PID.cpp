@@ -1,6 +1,7 @@
 #include "PID.h"
 #include <iostream>
 #include <numeric>
+#include <limits>
 
 using namespace std;
 
@@ -13,7 +14,7 @@ PID::PID() {}
 PID::~PID() {}
 
 void PID::Init(double Kp, double Ki, double Kd) {
-    p_error_ = 0;
+    p_error_ = numeric_limits<double>::max();
     i_error_.clear();
     d_error_ = 0;
     Kp_ = Kp;
@@ -27,12 +28,12 @@ void PID::UpdateError(double cte) {
 
     if(i_error_.size() >= 10)
     {
-        cout << "Remove first: " << *(i_error_.begin()) << endl;
+        //cout << "Remove first: " << *(i_error_.begin()) << endl;
         i_error_.erase(i_error_.begin());
     }
     i_error_.push_back(cte);
 
-    d_error_ = cte - prev_cte;
+    d_error_ = (cte - prev_cte);
 
     cout << "p_error: " << p_error_ << " d_error: " << d_error_ << " i_error: " <<  std::accumulate(i_error_.begin(), i_error_.end(), 0.0) << endl;    
 }

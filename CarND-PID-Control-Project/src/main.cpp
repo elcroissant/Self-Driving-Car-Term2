@@ -3,10 +3,12 @@
 #include "json.hpp"
 #include "PID.h"
 #include <math.h>
+#include <time.h>
 
 
 // for convenience
 using json = nlohmann::json;
+using namespace std;
 
 // For converting back and forth between radians and degrees.
 constexpr double pi() { return M_PI; }
@@ -52,14 +54,26 @@ int main()
   //double steer_Ki = 0.005;
   //double steer_Kd = 3.0;
 
-
+  // Propotional gain presents the ratio of output response to the error signal. 
+  // is the error term has a magnitude of 10, a propotional gain of 5 would produce propotional response of 50. 
+  // In general increasing proportional speed will increase the speed of the control system response. 
+  // However if hte gain is too big (like here ~ 0.5) , the process value will begin oscillate nad then system become unstable. 
+  // If the gain is too small (like here ~0.01), the process value will not react fast enough and system will fail. 
+  // here proportional gain of 0.7 with constant throttle of 0.1 is very stable, and with 0.2 is stable enough.
   double steer_Kp = 0.07;
+  // In general, this component takes advantages of longer run's errors summing them up over time and increasing gain slowly as a concequence. 
+  // Given that we can expect Ki gain helps mostly on longer turn when sum of error incresing. 
+  // For this particular lab I'm using window version of that sum to makes calculations to be more local.
+  // Low number is because we are dealing here with kind of a big number (here 10x bigger than Kp because we are summing up 10 last Kp gains)
   double steer_Ki = 0.005;
-  double steer_Kd = 3.0;
+  // Kd gain is a derivative component which causes the output to decrease if the process varaible is increasing rapidly.
+  // Too less number won't help to stabilize the system, too big will provide too much additional unstability. 
+  double steer_Kd = 2.0;
 
-  double speed_Kp = 1.0;
-  double speed_Ki = 0.05;
-  double speed_Kd = 4.0;
+  double speed_Kp = 20.0;
+  double speed_Ki = 0.0;
+  double speed_Kd = 0.0;
+
 
   uWS::Hub h;
 
@@ -84,37 +98,31 @@ int main()
           double speed = std::stod(j[1]["speed"].get<std::string>());
           double angle = std::stod(j[1]["steering_angle"].get<std::string>());
          
-          std::cout << "SPEED: " << speed << " ANGLE: " << angle << std::endl;
+          std::cout << " CTE: " << cte  << " SPEED: " << speed << " ANGLE: " << angle << std::endl;
 
+          std::cout << "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" << std::endl;
+          std::cout << "PID FOR STEERing" << std::endl;
           pid_for_steer.UpdateError(cte);
           double steer_value =  pid_for_steer.TotalError();
           double clamped_steer_value = clamp(steer_value, -1, 1);
-          std::cout << "CLAMPED: " << clamped_steer_value << std::endl;
-         
-          pid_for_speed.UpdateError(clamped_steer_value);
-          // PID controller for spped
-          double max_throttle = 0.5;
-          double speed_correction_value = max_throttle + pid_for_speed.TotalError();     
+          std::cout << "Steer correction: " << clamped_steer_value << std::endl;
+          std::cout << "PID FOR STEERing END" << std::endl;
 
-       // //// Throttle thresholds
-          //double throttle = 0.0;
-          //double inverse_steer = (1.0-fabs(clamped_steer_value));
-          //std::cout << "INVERSE: " << inverse_steer << std::endl;
-          //if (inverse_steer > 0.9)
-          //  throttle = inverse_steer;
-          //else if (inverse_steer > 0.1)
-          //  throttle = inverse_steer * 0.1;
-          //else
-          //  throttle = inverse_steer * 0.05;
-          //std::cout << "THROTTLE: " << throttle << std::endl;
-          //          
-          // DEBUG
-          std::cout << "CTE: " << cte << " Steering Value: " << steer_value << std::endl;
-          //std::cout << "Speed CTE: " << speed - desired_speed << " Speed Correction Value " << speed_correction_value << std::endl;
+          std::cout << ">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" << std::endl;
+          std::cout << "PID FOR SPEED" << std::endl;
+          std::cout << "angle " << angle << "deg2rad " << deg2rad(angle) << std::endl;
+
+          pid_for_speed.UpdateError(deg2rad(angle));
+
+          double throttle = 0.1; //pid_for_speed.TotalError();
+
+          std::cout << "Speed correction:  " << throttle << std::endl;
+          std::cout << "PID FOR SPEED END" << std::endl;
+          std::cout << "------------------------------" << std::endl;
 
           json msgJson;
           msgJson["steering_angle"] = clamped_steer_value;
-          msgJson["throttle"] = speed_correction_value;
+          msgJson["throttle"] = throttle;
           auto msg = "42[\"steer\"," + msgJson.dump() + "]";
           std::cout << msg << std::endl;
           ws.send(msg.data(), msg.length(), uWS::OpCode::TEXT);
