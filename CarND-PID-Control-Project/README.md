@@ -1,6 +1,36 @@
 # CarND-Controls-PID
 Self-Driving Car Engineer Nanodegree Program
 
+## Intro
+The basic idea behind a PID controller is to read a sensor, then compute the desired output by calculating proportional, integral, and derivative responses and summing those three components to compute the output. 
+
+## The effect of the P, I, D component of the PID algorithm in the implementation.
+
+# Propotional gain 
+It presents the ratio of output response to the error signal. If the error term has a magnitude of 10, a propotional gain of 5 would produce propotional response of 50.  In general increasing proportional speed will increase the speed of the control system response. However if the gain is too big (~0.5 - checked in the project), the process value will begin oscillate nad then system become unstable. If the gain is too small (~0.01 - checked in the project), the process value will not react fast enough and system will fail. In the project the proportional gain of 0.7 with constant throttle of 0.1 gives very stable results, and with 0.2 gives stable enough results.  
+
+# Integral gain
+In general, this component takes advantages of longer run's errors summing them up over time and increasing gain slowly as a concequence. Given that we can expect Ki gain helps mostly on longer turn when sum of error incresing. For this particular lab I'm using window version of that sum to makes calculations to be more local. Low number is because we are dealing here with kind of a big number (here 10x bigger than Kp because we are summing up 10 last Kp gains) 
+
+# Derivative gain 
+Kd gain is a derivative component which causes the output to decrease if the process varaible is increasing rapidly. Too less number won't help to stabilize the system, too big will provide too much additional unstability. 
+
+## Final hyperparameters (P, I, D coefficients) have been done through manual tuning
+Based on the expectations from previous points here is how I got to the point of achieving a stable run.
+Step #1: The following starting gueses provided but not very stable drive  
+double steer_Kp = 0.1;  
+double steer_Ki = 0.005;  
+double steer_Kd = 3;  
+
+Step #2: removing integral part doesn't help a lot  
+double steer_Kp = 0.1;  
+double steer_Ki = 0.0;  
+double steer_Kd = 3;  
+
+Step #3: adding sum of 10 last element and re-enabling integral part provided pretty stable run with up to 20 kmph speed  
+double steer_Kp = 0.07;  
+double steer_Ki = 0.005;  
+double steer_Kd = 3.0;  
 ---
 
 ## Dependencies
