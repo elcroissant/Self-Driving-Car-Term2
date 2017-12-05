@@ -17,20 +17,24 @@ Kd gain is a derivative component which causes the output to decrease if the pro
 
 ## Final hyperparameters (P, I, D coefficients) have been done through manual tuning
 Based on the expectations from previous points here is how I got to the point of achieving a stable run.
-Step #1: The following starting gueses provided but not very stable drive  
-double steer_Kp = 0.1;  
-double steer_Ki = 0.005;  
-double steer_Kd = 3;  
 
-Step #2: removing integral part doesn't help a lot  
-double steer_Kp = 0.1;  
-double steer_Ki = 0.0;  
-double steer_Kd = 3;  
+Step #1: 
+The following starting gueses provided but not very stable drive  
+* double steer_Kp = 0.1;  
+* double steer_Ki = 0.005;  
+* double steer_Kd = 3;  
 
-Step #3: adding sum of 10 last element and re-enabling integral part provided pretty stable run with up to 20 kmph speed  
-double steer_Kp = 0.07;  
-double steer_Ki = 0.005;  
-double steer_Kd = 3.0;  
+Step #2: 
+Removing integral part doesn't help a lot  
+* double steer_Kp = 0.1;  
+* double steer_Ki = 0.0;  
+* double steer_Kd = 3;  
+
+Step #3: 
+Adding sum of 10 last element and re-enabling integral part provided pretty stable run with up to 20 kmph speed  
+* double steer_Kp = 0.07;  
+* double steer_Ki = 0.005;  
+* double steer_Kd = 3.0;  
 ---
 
 ## Dependencies
