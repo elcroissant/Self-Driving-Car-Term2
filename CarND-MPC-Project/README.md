@@ -30,6 +30,20 @@ Self-Driving Car Engineer Nanodegree Program
 
 * Lf -  measures the distance between the front of the vehicle and its center of gravity. The larger the vehicle, the slower the turn rate.
 
+## Timestep Lenght and Elapsed Duration (N & dt)
+
+* STEP #1 N = 25 and dt = 0.05 and ref velocity = 20 (to deal with stopping)Result: seems ok but a little bit slow
+* STEP #2 N = 25 and dt = 0.05 and ref velocity = 30 (to deal with stopping)Reason: decided to check if car can handle faster driveResult: car would crash on the real road, it seems it is too fast for the car to stay on the road
+* STEP #3 N = 20 and dt = 0.05 and ref velocity = 30 (to deal with stopping)Reason: it seems it is too much computing to provide correct projections, let's decrease big T  by decreasing number of timestampsResult: Looks much better, but the drive is still very unstable
+* STEP #4 N=15 and dt 0.1 and ref velocity = 30 (to deal with stopping)Reason: Try less than 10s Result: Again very unstable drive and crash. It seems 10s is what I'm looking for
+* STEP #5 N=10 and dt 0.1 and ref velocity = 30 (to deal with stopping)Reason: Let's play with N and dt and leave constant their product T to keep 10sResult: A lot better!!!
+* STEP #6 N=10 and dt 0.1 and ref velocity = 50 (to deal with stopping)Reason: Let's try to drive fasterResult: Good drive for a very short time
+* STEP #7 N=10 and dt 0.1 and ref velocity = 50 (to deal with stopping), tune scale for delta  = 100Reason: Let's check how it will behave if we try to make steering transition smootherResult: Very good drive
+* STEP #8 N=10 and dt 0.1 and ref velocity = 80 (to deal with stopping), tune scale for delta  = 100Reason: Drive faster by 30 kmph!!Result: Too fast on the turn and crashed
+* ….
+* STEP #LAST  N=10 and dt 0.1 and ref velocity = 80 (to deal with stopping), tune scale for delta  = 100, plus adding a few more tweaks for rest of variablesResult: Car can drive very stable, especially after 1st lap
+
+--
 ## Dependencies
 
 * cmake >= 3.5
