@@ -85,6 +85,13 @@ And then polynomial fitting was done with local coordinates
 
 auto coeffs = polyfit(localPts.row(0), localPts.row(1), 3);
 
+## Model Predictive Control with Latency
+
+Twofold approched to deal with latency has been applied in the project: 
+1. Recalculating local state vector in such a way as to take into account latency of 100ms before passing it to the model. 
+2. Penalizing acceleration and acceleration change by multiplying appropriate values by factor of 100 and 200 while counting cost function  
+
+
 ---
 ## Dependencies
 
