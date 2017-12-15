@@ -5,19 +5,18 @@ Self-Driving Car Engineer Nanodegree Program
 
 ## Vehicle Model
 
-# State: [x,y,psi,v,cte,epis]
+### State: [x,y,psi,v,cte,epis]
 x,y - current position of the car,
 psi - current heading direction, orientation angle of the car, 
 v - current velocity of the car,
 cte -  current cross-track error,
 epsi - current orientation error,
 
-# Actuators: [delta, a]
-delta - current steering angle of the car, 
-constraints applied:  [-25o, 25o ]
+### Actuators: [delta, a]
+delta - current steering angle of the car, constraints applied:  [-25o, 25o ]
 a - current throttle, constraints applied: [-1,1]
 
-# Update equations: 
+### Update equations: 
 x_[t] = x[t-1] + v[t-1] * cos(psi[t-1]) * dt
 y_[t] = y[t-1] + v[t-1] * sin(psi[t-1]) * dt
 // psi_[t] = psi[t-1] + v[t-1] / Lf * delta[t-1] * dt   
