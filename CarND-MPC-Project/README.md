@@ -5,7 +5,10 @@ Self-Driving Car Engineer Nanodegree Program
 
 ## Vehicle Model
 
-### State: [x,y,psi,v,cte,epis]
+In this project Model Predictive Control to drive the car around the track has been implemented. The simulator used in this project sends car state information to the MPC model and it receives back the steering angle and throttle of the car. 
+The implemented vehicle model is kinematic model ingnoring forces, gravity and mass. Given that, accuracy of the model is a little bit reduced but approximation the actual vehicle dynamics is suffice for moderate speed.
+
+### State decribing model: [x,y,psi,v,cte,epis]
 
 x,y - current position of the car,
 
@@ -51,25 +54,57 @@ Lf -  measures the distance between the front of the vehicle and its center of 
 
 ## Timestep Lenght and Elapsed Duration (N & dt)
 
-STEP #1 N = 25 and dt = 0.05 and ref velocity = 20 (to deal with stopping)Result: seems ok but a little bit slow
+STEP #1 N = 25 and dt = 0.05 and ref velocity = 20 (to deal with stopping)
 
-STEP #2 N = 25 and dt = 0.05 and ref velocity = 30 (to deal with stopping)Reason: decided to check if car can handle faster driveResult: car would crash on the real road, it seems it is too fast for the car to stay on the road
+Result: seems ok but a little bit slow
 
-STEP #3 N = 20 and dt = 0.05 and ref velocity = 30 (to deal with stopping)Reason: it seems it is too much computing to provide correct projections, let's decrease big T  by decreasing number of timestampsResult: Looks much better, but the drive is still very unstable
+STEP #2 N = 25 and dt = 0.05 and ref velocity = 30 (to deal with stopping)
 
-STEP #4 N=15 and dt 0.1 and ref velocity = 30 (to deal with stopping)Reason: Try less than 10s Result: Again very unstable drive and crash. It seems 10s is what I'm looking for
+Reason: decided to check if car can handle faster drive
 
-STEP #5 N=10 and dt 0.1 and ref velocity = 30 (to deal with stopping)Reason: Let's play with N and dt and leave constant their product T to keep 10sResult: A lot better!!!
+Result: car would crash on the real road, it seems it is too fast for the car to stay on the road
 
-STEP #6 N=10 and dt 0.1 and ref velocity = 50 (to deal with stopping)Reason: Let's try to drive fasterResult: Good drive for a very short time
+STEP #3 N = 20 and dt = 0.05 and ref velocity = 30 (to deal with stopping)
 
-STEP #7 N=10 and dt 0.1 and ref velocity = 50 (to deal with stopping), tune scale for delta  = 100Reason: Let's check how it will behave if we try to make steering transition smootherResult: Very good drive
+Reason: it seems it is too much computing to provide correct projections, let's decrease big T  by decreasing number of timestamps
 
-STEP #8 N=10 and dt 0.1 and ref velocity = 80 (to deal with stopping), tune scale for delta  = 100Reason: Drive faster by 30 kmph!!Result: Too fast on the turn and crashed
+Result: Looks much better, but the drive is still very unstable
+
+STEP #4 N=15 and dt 0.1 and ref velocity = 30 (to deal with stopping)
+
+Reason: Try less than 10s 
+
+Result: Again very unstable drive and crash. It seems 10s is what I'm looking for
+
+STEP #5 N=10 and dt 0.1 and ref velocity = 30 (to deal with stopping)
+
+Reason: Let's play with N and dt and leave constant their product T to keep 10s
+
+Result: A lot better!!!
+
+STEP #6 N=10 and dt 0.1 and ref velocity = 50 (to deal with stopping)
+
+Reason: Let's try to drive faster
+
+Result: Good drive for a very short time
+
+STEP #7 N=10 and dt 0.1 and ref velocity = 50 (to deal with stopping), tune scale for delta  = 100
+
+Reason: Let's check how it will behave if we try to make steering transition smoother
+
+Result: Very good drive
+
+STEP #8 N=10 and dt 0.1 and ref velocity = 80 (to deal with stopping), tune scale for delta  = 100
+
+Reason: Drive faster by 30 kmph!!
+
+Result: Too fast on the turn and crashed
 
 ….
 
-STEP #LAST  N=10 and dt 0.1 and ref velocity = 80 (to deal with stopping), tune scale for delta  = 100, plus adding a few more tweaks for rest of variablesResult: Car can drive very stable, especially after 1st lap
+STEP #LAST  N=10 and dt 0.1 and ref velocity = 80 (to deal with stopping), tune scale for delta  = 100, plus adding a few more tweaks for the rest of variables
+
+Result: Car can drive very stable, especially after 1st lap
 
 ## Polynomial Fitting and MPC Preprocessing
 
@@ -87,9 +122,9 @@ auto coeffs = polyfit(localPts.row(0), localPts.row(1), 3);
 
 ## Model Predictive Control with Latency
 
-Twofold approched to deal with latency has been applied in the project: 
+Twofold approch to deal with latency has been applied in the project: 
 1. Recalculating local state vector in such a way as to take into account latency of 100ms before passing it to the model. 
-2. Penalizing acceleration and acceleration change by multiplying appropriate values by factor of 100 and 200 while counting cost function  
+2. Penalizing acceleration and acceleration change by multiplying appropriate values by factor of 100 and 200 while counting cost function.
 
 
 ---
